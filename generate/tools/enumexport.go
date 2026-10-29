@@ -270,6 +270,11 @@ func exportConstants(db *generate.SymbolCache, framework *modules.Module, platfo
 	if framework.Package == "coremediaio" {
 		extraInclude = "#import <CoreMediaIO/CMIOExtension.h>"
 	}
+	// Link Foundation for ObjC runtime (objc_msgSend) on newer SDKs/Go toolchains.
+	// Frameworks like EventKit/CoreLocation alone don't pull it in.
+	if framework.Package != "foundation" && framework.Package != "corefoundation" {
+		extraLoad = "-framework Foundation " + extraLoad
+	}
 	source := fmt.Sprintf(`package main
 
 /*
